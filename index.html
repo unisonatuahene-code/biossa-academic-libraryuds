@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Public Student Resource Portal</title>
+    <title>Student Portal | Resources</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -16,59 +16,74 @@
 
     <nav class="bg-slate-900 text-white p-4 shadow-lg flex justify-between items-center">
         <div class="flex items-center space-x-2">
-            <i class="fas fa-book-open text-blue-400 text-2xl"></i>
-            <span class="font-bold text-xl tracking-tight">STUDENT HUB</span>
+            <i class="fas fa-graduation-cap text-blue-400 text-2xl"></i>
+            <span class="font-bold text-xl tracking-tight">ACADEMIC HUB</span>
         </div>
         <div class="flex items-center space-x-4">
-            <button onclick="unlockAdmin()" class="text-slate-800 hover:text-slate-700 text-xs">.</button>
-            <span id="adminBadge" class="hidden bg-green-500 text-white px-2 py-1 rounded text-xs uppercase font-bold">Admin Mode</span>
+            <button onclick="unlockAdmin()" id="loginBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-1 rounded text-sm transition">
+                <i class="fas fa-lock mr-2"></i>Admin Login
+            </button>
+            <span id="adminBadge" class="hidden bg-green-600 text-white px-3 py-1 rounded text-xs uppercase font-bold tracking-widest">Administrator</span>
         </div>
     </nav>
 
     <div class="max-w-6xl mx-auto p-6">
-        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8 text-center">
-            <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Academic Repository</h1>
-            <p class="text-slate-500">Download slides and past questions for your courses.</p>
-        </div>
-
-        <div id="uploadSection" class="admin-only bg-blue-50 border-2 border-dashed border-blue-200 p-6 rounded-2xl mb-8 transition-all">
-            <h3 class="font-bold text-blue-800 mb-4"><i class="fas fa-upload mr-2"></i> Upload New Resource</h3>
-            <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="fileName" placeholder="File Name (e.g. Physics 101 Slides)" class="flex-1 p-2 rounded border">
-                <select id="fileCategory" class="p-2 rounded border">
+        <div id="uploadSection" class="admin-only bg-white border-2 border-blue-100 p-6 rounded-2xl mb-8 shadow-inner">
+            <h3 class="font-bold text-slate-800 mb-4 text-lg">Upload New Resource</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="fileName" placeholder="Book/Slide Title" class="p-2 rounded border border-gray-300">
+                <select id="fileCategory" class="p-2 rounded border border-gray-300">
                     <option value="slides">Lecture Slides</option>
                     <option value="questions">Past Questions</option>
                 </select>
-                <input type="file" id="fileInput" class="p-1">
-                <button onclick="processUpload()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700">Publish</button>
+                <input type="file" id="fileInput" class="p-1 text-sm text-gray-500">
+                <button onclick="processUpload()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">Publish Now</button>
             </div>
+            <p class="mt-2 text-xs text-orange-600 font-medium italic">Note: Files uploaded here are saved to your browser session.</p>
         </div>
 
-        <div class="flex space-x-4 mb-6 border-b">
-            <button onclick="switchTab('slides')" id="tab-slides" class="pb-3 px-4 font-bold border-b-2 border-blue-600 text-blue-600">Lecture Slides</button>
-            <button onclick="switchTab('questions')" id="tab-questions" class="pb-3 px-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-gray-600">Past Questions</button>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 border-l-4 border-blue-600 pl-3">Standard Resources</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center hover:border-blue-300 transition">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 bg-red-50 text-red-500 rounded-lg"><i class="fas fa-file-pdf fa-lg"></i></div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">General Physics Textbook</h4>
+                            <p class="text-xs text-slate-400">Fixed Resource</p>
+                        </div>
+                    </div>
+                    <a href="#" class="bg-slate-100 text-slate-700 px-4 py-2 rounded font-bold text-sm hover:bg-blue-600 hover:text-white transition">Download</a>
+                </div>
+                </div>
         </div>
 
-        <div id="slides" class="tab-content active">
-            <div id="slidesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <hr class="my-10 border-gray-200">
+
+        <div class="flex space-x-6 mb-6">
+            <button onclick="switchTab('slides')" id="tab-slides" class="text-lg font-bold border-b-4 border-blue-600 text-blue-600 pb-2">My Uploads (Slides)</button>
+            <button onclick="switchTab('questions')" id="tab-questions" class="text-lg font-bold text-gray-400 border-b-4 border-transparent pb-2">My Uploads (Questions)</button>
         </div>
-        <div id="questions" class="tab-content">
-            <div id="questionsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        </div>
+
+        <div id="slides" class="tab-content active"><div id="slidesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div></div>
+        <div id="questions" class="tab-content"><div id="questionsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div></div>
     </div>
 
     <script>
-        const ADMIN_PASSWORD = "1234"; // CHANGE THIS TO YOUR SECRET KEY
+        const ADMIN_PASS = "1234"; 
         let isAdmin = false;
 
         function unlockAdmin() {
-            const pass = prompt("Enter Admin Key to Upload:");
-            if (pass === ADMIN_PASSWORD) {
+            const pass = prompt("Enter Admin Password:");
+            if (pass === ADMIN_PASS) {
                 isAdmin = true;
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.getElementById('uploadSection').style.display = 'block';
                 document.getElementById('adminBadge').classList.remove('hidden');
-                alert("Admin Access Granted");
+                document.getElementById('loginBtn').classList.add('hidden');
                 renderFiles();
+            } else {
+                alert("Wrong password!");
             }
         }
 
@@ -76,9 +91,7 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             
-            // Toggle Tab Styling
-            const tabs = ['slides', 'questions'];
-            tabs.forEach(t => {
+            ['slides', 'questions'].forEach(t => {
                 const el = document.getElementById('tab-' + t);
                 if(t === tabId) {
                     el.classList.add('border-blue-600', 'text-blue-600');
@@ -96,17 +109,11 @@
             const category = document.getElementById('fileCategory').value;
             const file = document.getElementById('fileInput').files[0];
 
-            if(!name || !file) return alert("Please fill all fields");
+            if(!name || !file) return alert("Fill in the title and select a file!");
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                const newFile = {
-                    id: Date.now(),
-                    name: name,
-                    category: category,
-                    data: e.target.result,
-                    date: new Date().toLocaleDateString()
-                };
+                const newFile = { id: Date.now(), name: name, category: category, data: e.target.result, date: new Date().toLocaleDateString() };
                 let files = JSON.parse(localStorage.getItem('portal_files') || '[]');
                 files.push(newFile);
                 localStorage.setItem('portal_files', JSON.stringify(files));
@@ -122,20 +129,13 @@
             const container = document.getElementById(currentTab + 'List');
             container.innerHTML = '';
 
-            const filtered = files.filter(f => f.category === currentTab);
-
-            filtered.forEach(file => {
+            files.filter(f => f.category === currentTab).forEach(file => {
                 const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center hover:shadow-md transition";
+                card.className = "bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center";
                 card.innerHTML = `
                     <div class="flex items-center space-x-4">
-                        <div class="p-3 ${currentTab === 'slides' ? 'bg-orange-50 text-orange-500' : 'bg-purple-50 text-purple-500'} rounded-lg">
-                            <i class="fas ${currentTab === 'slides' ? 'fa-file-powerpoint' : 'fa-file-pdf'} fa-lg"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-800">${file.name}</h4>
-                            <p class="text-xs text-slate-400">Added: ${file.date}</p>
-                        </div>
+                        <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-file fa-lg"></i></div>
+                        <div><h4 class="font-bold text-slate-800">${file.name}</h4><p class="text-xs text-slate-400">${file.date}</p></div>
                     </div>
                     <div class="flex items-center space-x-3">
                         <a href="${file.data}" download="${file.name}" class="text-blue-600 font-bold hover:underline">Download</a>
