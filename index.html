@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Student Resource Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .admin-only { display: none; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <nav class="bg-slate-900 text-white p-4 shadow-lg flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-book-open text-blue-400 text-2xl"></i>
+            <span class="font-bold text-xl tracking-tight">STUDENT HUB</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="unlockAdmin()" class="text-slate-800 hover:text-slate-700 text-xs">.</button>
+            <span id="adminBadge" class="hidden bg-green-500 text-white px-2 py-1 rounded text-xs uppercase font-bold">Admin Mode</span>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto p-6">
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8 text-center">
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Academic Repository</h1>
+            <p class="text-slate-500">Download slides and past questions for your courses.</p>
+        </div>
+
+        <div id="uploadSection" class="admin-only bg-blue-50 border-2 border-dashed border-blue-200 p-6 rounded-2xl mb-8 transition-all">
+            <h3 class="font-bold text-blue-800 mb-4"><i class="fas fa-upload mr-2"></i> Upload New Resource</h3>
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="fileName" placeholder="File Name (e.g. Physics 101 Slides)" class="flex-1 p-2 rounded border">
+                <select id="fileCategory" class="p-2 rounded border">
+                    <option value="slides">Lecture Slides</option>
+                    <option value="questions">Past Questions</option>
+                </select>
+                <input type="file" id="fileInput" class="p-1">
+                <button onclick="processUpload()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700">Publish</button>
+            </div>
+        </div>
+
+        <div class="flex space-x-4 mb-6 border-b">
+            <button onclick="switchTab('slides')" id="tab-slides" class="pb-3 px-4 font-bold border-b-2 border-blue-600 text-blue-600">Lecture Slides</button>
+            <button onclick="switchTab('questions')" id="tab-questions" class="pb-3 px-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-gray-600">Past Questions</button>
+        </div>
+
+        <div id="slides" class="tab-content active">
+            <div id="slidesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+        <div id="questions" class="tab-content">
+            <div id="questionsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = "1234"; // CHANGE THIS TO YOUR SECRET KEY
+        let isAdmin = false;
+
+        function unlockAdmin() {
+            const pass = prompt("Enter Admin Key to Upload:");
+            if (pass === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.getElementById('adminBadge').classList.remove('hidden');
+                alert("Admin Access Granted");
+                renderFiles();
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // Toggle Tab Styling
+            const tabs = ['slides', 'questions'];
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                if(t === tabId) {
+                    el.classList.add('border-blue-600', 'text-blue-600');
+                    el.classList.remove('text-gray-400', 'border-transparent');
+                } else {
+                    el.classList.remove('border-blue-600', 'text-blue-600');
+                    el.classList.add('text-gray-400', 'border-transparent');
+                }
+            });
+            renderFiles();
+        }
+
+        function processUpload() {
+            const name = document.getElementById('fileName').value;
+            const category = document.getElementById('fileCategory').value;
+            const file = document.getElementById('fileInput').files[0];
+
+            if(!name || !file) return alert("Please fill all fields");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const newFile = {
+                    id: Date.now(),
+                    name: name,
+                    category: category,
+                    data: e.target.result,
+                    date: new Date().toLocaleDateString()
+                };
+                let files = JSON.parse(localStorage.getItem('portal_files') || '[]');
+                files.push(newFile);
+                localStorage.setItem('portal_files', JSON.stringify(files));
+                renderFiles();
+                document.getElementById('fileName').value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderFiles() {
+            const currentTab = document.querySelector('.tab-content.active').id;
+            const files = JSON.parse(localStorage.getItem('portal_files') || '[]');
+            const container = document.getElementById(currentTab + 'List');
+            container.innerHTML = '';
+
+            const filtered = files.filter(f => f.category === currentTab);
+
+            filtered.forEach(file => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center hover:shadow-md transition";
+                card.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 ${currentTab === 'slides' ? 'bg-orange-50 text-orange-500' : 'bg-purple-50 text-purple-500'} rounded-lg">
+                            <i class="fas ${currentTab === 'slides' ? 'fa-file-powerpoint' : 'fa-file-pdf'} fa-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">${file.name}</h4>
+                            <p class="text-xs text-slate-400">Added: ${file.date}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <a href="${file.data}" download="${file.name}" class="text-blue-600 font-bold hover:underline">Download</a>
+                        ${isAdmin ? `<button onclick="deleteFile(${file.id})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function deleteFile(id) {
+            let files = JSON.parse(localStorage.getItem('portal_files') || '[]');
+            files = files.filter(f => f.id !== id);
+            localStorage.setItem('portal_files', JSON.stringify(files));
+            renderFiles();
+        }
+
+        renderFiles();
+    </script>
+</body>
+</html>
